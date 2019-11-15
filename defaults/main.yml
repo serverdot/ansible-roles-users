@@ -1,2 +1,24 @@
 ---
-# defaults file for users
+
+# list of groups to create or remove
+users_groups: []
+users_groups_remove: []
+
+# create a group per user and use
+# that as primary group for the user
+users_group_per_user: false
+
+# otherwise use this as primary group
+users_primary_group: users
+
+# users to remove by names
+users_remove: []
+
+# admin group
+users_admins_group: admins
+
+# list of server admins
+users_admins: []
+
+# list of normal users
+users_normal: []

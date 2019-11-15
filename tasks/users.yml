@@ -1,0 +1,62 @@
+---
+
+# Create admin users
+- name: Create admin users
+  user:
+    append: "{{ item.append | default('no') }}"
+    comment: "{{ item.comment | default('Account with SSH and sudo access') }}"
+    create_home: "{{ item.create_home | default('yes') }}"
+    expires: "{{ item.expires | default(omit) }}"
+    group: "{{ item.group | default(item.name if users_group_per_user else users_primary_group) }}"
+    groups: "{{ [users_admins_group] | union(item.groups) }}"
+    home: "{{ item.home | default('/home/' + item.name) }}"
+    name: "{{ item.name }}"
+    password: "{{ item.password | default('!') }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    state: present
+    system: no
+    uid: "{{ item.uid | default(omit) }}"
+    update_password: "{{ item.update_password | default('always') }}"
+  when:
+    - item.name not in users_remove
+    - item.state is undefined or (item.state is defined and item.state != 'absent')
+  loop:
+    - "{{ users_admins }}"
+
+# Create normal users
+- name: Create normal users
+  user:
+    append: "{{ item.append | default('no') }}"
+    comment: "{{ item.comment | default('Account with SSH and sudo access') }}"
+    create_home: "{{ item.create_home | default('yes') }}"
+    expires: "{{ item.expires | default(omit) }}"
+    group: "{{ item.group | default(item.name if users_group_per_user else users_primary_group) }}"
+    groups: "{{ item.groups | default(omit) }}"
+    home: "{{ item.home | default('/home/' + item.name) }}"
+    name: "{{ item.name }}"
+    password: "{{ item.password | default('!') }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    state: present
+    system: no
+    uid: "{{ item.uid | default(omit) }}"
+    update_password: "{{ item.update_password | default('always') }}"
+  when:
+    - item.name not in users_remove
+    - item.state is undefined or (item.state is defined and item.state != 'absent')
+  loop:
+    - "{{ users_normal }}"
+
+# Remove users that are absent
+- name: Remove users from users_remove
+  user:
+    append: no
+    comment: "Account removed"
+    force: true
+    group: "nogroup"
+    groups: []
+    name: "{{ item }}"
+    remove: true
+    state: absent
+    password: "!"
+  loop:
+    - "{{ users_remove }}"

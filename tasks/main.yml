@@ -1,2 +1,11 @@
 ---
 # tasks file for users
+
+- name: users manage groups
+  include_tasks: groups.yml
+
+- name: users manage users
+  include_tasks: users.yml
+
+- name: users manage ssh keys authorized
+  include_tasks: ssh-auth.yml

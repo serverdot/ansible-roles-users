@@ -1,0 +1,38 @@
+---
+
+# Task to create groups
+- name: Create groups
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid | default(omit) }}"
+    state: present
+  loop: "{{ users_groups | flatten(1) }}"
+
+# Task to remove groups
+- name: Remove groups
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid | default(omit) }}"
+    state: absent
+  loop: "{{ users_groups_remove | flatten(1) }}"
+
+# Create group per user only
+# when users_group_per_user is true
+- name: Create group per user
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.uid | default(omit) }}"
+    state: present
+  when:
+    - users_group_per_user
+    - item.state is undefined or (item.state is defined and item.state != 'absent')
+  loop:
+    - "{{ users_admins | flatten(1) }}"
+    - "{{ users_normal | flatten(1) }}"
+
+# Create admin group
+- name: Create admin group
+  group:
+    name: "{{ users_admins_group }}"
+    state: present
+  when: users_admins_group is defined and users_admins_group != ''
