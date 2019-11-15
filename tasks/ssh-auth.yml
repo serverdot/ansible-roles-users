@@ -1,0 +1,34 @@
+---
+
+# Check ssh present
+- name: Install openssh-server
+  apt:
+    autoclean: yes
+    name: openssh-server
+    state: present
+
+# Add authorized keys from users
+- name: Set authorized keys for users
+  authorized_keys:
+    comment: "{{ item.1.comment | default(omit) }}"
+    exclusive: "{{ item.1.exclusive | default('yes') }}"
+    key: "{{ item.1.key }}"
+    user: "{{ item.0.name }}"
+    state: "{{ item.1.state | default('absent') }}"
+  loop:
+    - "{{ (users_admins + users_normal) | subelements('ssh_keys') }}"
+  when:
+    - item.0.state is undefined or (item.0.state is defined and item.0.state != 'absent')
+    - item.1.key is defined
+
+# Set custom sudoers file
+- name: Create sudoers file for admins group
+  template:
+    backup: yes
+    dest: /etc/sudoers.d/10-admins-group
+    group: root
+    lstrip_blocks: yes
+    mode: "0440"
+    owner: root
+    src: "10-admins-group.j2"
+    validate: "visudo -cf %s"
