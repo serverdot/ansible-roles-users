@@ -26,13 +26,11 @@
   when:
     - users_group_per_user
     - item.state is undefined or (item.state is defined and item.state != 'absent')
-  loop:
-    - "{{ users_admins | flatten(1) }}"
-    - "{{ users_normal | flatten(1) }}"
+  loop: "{{ (users_admins + users_normal) | flatten(1) }}"
 
 # Create admin group
 - name: Create admin group
   group:
     name: "{{ users_admins_group }}"
     state: present
-  when: users_admins_group is defined and users_admins_group != ''
+  when: users_admins_group|bool
