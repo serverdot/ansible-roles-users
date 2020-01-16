@@ -33,4 +33,3 @@
   group:
     name: "{{ users_admins_group }}"
     state: present
-  when: users_admins_group|bool
